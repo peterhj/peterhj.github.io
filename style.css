@@ -10,10 +10,10 @@ h1 a { text-decoration: none; }
 #dntoggle:hover, #dntoggle:focus { color: #333; }
 #container { width: 630px; margin-left: auto; margin-right: auto; background-color: #f9f9f9; }
 #header { width: 630px; padding-left: 9px; padding-right: 9px; background-color: #fff; }
-#contentwraptop { height: 39px; background-color: #f9f9f9; }
+#contentwraptop { height: 0; background-color: #f9f9f9; }
 #contentwrap { width: 100%; }
 #content { width: 100%; padding: 9px; background-color: #f9f9f9; }
-#contentwrapbot { height: 108px; background-color: #ededed; }
+#contentwrapbot { height: 0; background-color: #ededed; }
 #footerwrap { position: fixed; bottom: 0; z-index: 2; height: 108px; padding: 9px; border-top: 1px solid #777; background-color: #fff; }
 #footerinst { font-size: 0.75rem; font-style: italic; }
 #footer textarea { display: block; width: 612px; }
