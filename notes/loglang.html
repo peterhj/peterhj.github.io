@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<link rel="stylesheet" href="/tachyons.min.css">
+<link rel="stylesheet" href="/style.css">
+<title>Peter Jin</title>
+</head>
+<body>
+<div id="container">
+<div id="header">
+<div class="fl">
+<h1><a href="/">Peter Jin</a></h1>
+</div>
+<!--<div class="fl">
+<span class="rhs rhs_smol gray sans-serif"></span>
+</div>-->
+<div class="fr">
+<span class="rhs sans-serif"><a href="#contact">Contact</a></span>
+</div>
+<div class="cb-ns"></div>
+</div>
+<div id="contentwraptop"></div>
+<div id="contentwrap">
+<div id="content">
+<div>
+
+<h2>A logical language for theorem proving and geometry solving</h2>
+<br><br>
+Peter Jin<br>
+May 6, 2024
+<br><br>
+
+The following is a brief and high-level summary of a
+logical language that is suitable as input to
+a theorem prover for geometry solving, e.g.
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
+<br><br>
+
+<h3>A logical form language</h3>
+<br><br>
+
+The input to the theorem prover is a script written in
+a <em>logical form language</em>.
+By <em>logical form language</em>, we mean something
+very much like a <em>logic programming language</em>,
+i.e. a language based on Horn clauses with equality and
+uninterpreted functions,
+except that there is more emphasis on the logical
+and less on the extra-logical programming parts,
+e.g. cut or non-pure I/O.
+<br><br>
+
+For example, the line:
+<pre>
+axm for a, b, c the abc { triangle(a, b, c) -> abc :- -/collinear(a, b, c) }
+</pre>
+defines a logical rule that may be translated into the
+following natural language sentence:
+&ldquo;Suppose that $a$, $b$, and $c$ are not collinear.
+Then, $a$, $b$, and $c$ form a triangle $abc$.&rdquo;
+<br><br>
+
+In the line above, <code>a</code>, <code>b</code>, and
+<code>c</code> are universally quantified bound variables,
+<code>abc</code> is a functionally bound variable,
+and <code>triangle</code> and <code>collinear</code> are
+free or global variables.
+The terms <code>triangle(a, b, c) -> abc</code> and
+<code>-/collinear(a, b, c)</code> are logical tuples
+representing logical propositions.
+Following the Prolog convention, the arrow <code>:-</code>
+symbolizes right-to-left inference: given the conditions
+on the right-hand-side of the arrow, the conclusion on the
+left-hand-side follows.
+(Alternatively, the left-to-right arrow <code>-:</code>
+would also work analogously.)
+The logical negation <code>-/</code> simply follows
+the rule of <em>first-degree entailment</em>
+[Belnap],
+rather than the <em>stratified negation-as-failure</em>
+usually seen in logic programming.
+The keyword <code>axm</code>, which begins the definition
+of the rule, is rather arbitrary;
+other possible keywords include <code>thm</code>,
+<code>lem</code>, <code>rule</code>, etc.
+<br><br>
+
+The free variables <code>triangle</code> and
+<code>collinear</code> above refer to logical relations,
+which must be defined prior to their use in a logical rule.
+Sensible definitions would be the two lines:
+<pre>
+symm fun triangle/3+1
+symm rel collinear/3
+</pre>
+The <code>triangle</code> functional relation has a
+functional arity of <code>3+1</code>, i.e. it is a function
+of a 3-tuple argument returning exactly 1 output.
+The <code>collinear</code> relation simply has a 3-tuple
+argument.
+The keyword <code>symm</code> marks both relations as
+symmetric relations, a light syntactic sugar that auto-defines
+logical rules to generate all permutations of their 3-tuple
+arguments.
+<br><br>
+
+<h3>Language extensions</h3>
+<br><br>
+
+The logical form language we described above is sufficient
+for encoding most olympiad-style geometry problems,
+which correspond to fixed-point saturation of
+<em>pure</em> (side-effect-free) logical rules,
+interpreted with <em>choice</em> of <em>functional</em>
+applications.
+
+For more general domains, it makes sense to carve out
+alternatives along each of the pure/functional-choice axes
+of our logic.
+
+Whereas pure logical rules are sufficient for geometry,
+<em>non-pure</em> (or side-effect-ful) logical rules may
+be necessary for describing general domains.
+Just as a pure logical rule is defined with the help of
+the <code>:-</code> or <code>-:</code> arrows,
+a non-pure logical rule may be defined by the arrows
+<code>:~</code> (right-to-left non-pure rule) or
+<code>~:</code> (left-to-right non-pure rule).
+Non-pure logical rules additionally may also introduce
+non-pure <em>logical destruction</em> <code>~/</code>
+on the conclusion side of the rule,
+which removes a logical tuple argument.
+
+A functional choice as used for geometric constructions
+may be generalized to a <em>top-level choice</em>.
+Any top-level (pure or non-pure) logical rule may be
+marked <code>choose</code> to exempt it from fixed-point
+saturation and to instead interpret it during the
+evaluation-of-choices phase.
+
+</div>
+</div><!--#content-->
+</div><!--#contentwrap-->
+<div id="contentwrapbot"></div>
+</div><!--#container-->
+<script>
+(function () {
+var b = function (a) {
+return a.split('').map(function (a) {
+return a.match(/[a-z]/) ? String.fromCharCode(((a.charCodeAt(0) - 84) % 26) + 97) : a;
+}).join('');
+};
+(function (a) { a.textContent = b(a.textContent); })(document.querySelector("#anzr"));
+})();
+</script>
+</body>
+</html>
