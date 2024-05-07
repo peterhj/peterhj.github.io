@@ -86,8 +86,8 @@ One set of auxiliary rules are essentially identities:
 <pre>
 axm for x { a(x) -: a'(x) }
 axm for x { c(x) -: c'(x) }
-axm for x { e(x, y) -: e'(x, y) }
-axm for x { f(x, y) -: f'(x, y) }
+axm for x, y { e(x, y) -: e'(x, y) }
+axm for x, y { f(x, y) -: f'(x, y) }
 </pre>
 <br><br>
 
@@ -100,13 +100,13 @@ partially evaluated joins of the original rules:
 <br><br>
 
 <pre>
-axm for x { a(x), c(y) -: ac'(x, y) }
-axm for x { a(x), b(x, y) -: ab'(x, y) }
-axm for x { c(x), b(x, y) -: cb'(x, y) }
-axm for x { a(x), b(x, y), c(y) -: abc'(x, y) }
-axm for x { a(x), d(x, y) -: ad'(x, y) }
-axm for x { c(x), d(x, y) -: cd'(x, y) }
-axm for x { a(x), d(x, y), c(y) -: adc'(x, y) }
+axm for x, y { a(x), c(y) -: ac'(x, y) }
+axm for x, y { a(x), b(x, y) -: ab'(x, y) }
+axm for x, y { c(x), b(x, y) -: cb'(x, y) }
+axm for x, y { a(x), b(x, y), c(y) -: abc'(x, y) }
+axm for x, y { a(x), d(x, y) -: ad'(x, y) }
+axm for x, y { c(x), d(x, y) -: cd'(x, y) }
+axm for x, y { a(x), d(x, y), c(y) -: adc'(x, y) }
 </pre>
 <br><br>
 
@@ -132,10 +132,10 @@ and the evaluation with choice may be done recursively.
 
 The selection phase looks at the minimum of all auxiliary
 visit counts that were updated during the last evaluation,
-and selects the choice with least min-visit-count.
+and selects the choice with least min-updated-visit-count.
 (Choices that do not cause any visit count updates
-are considered to have infinite min-visit-count.)
-In practice, the min-visit-count selection rule is
+are considered to have infinite min-updated-visit-count.)
+In practice, the min-updated-visit-count selection rule is
 augmented with a noise mechanism, akin to epsilon-greedy
 policies used in reinforcement learning.
 <br><br>
