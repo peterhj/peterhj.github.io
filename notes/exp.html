@@ -36,21 +36,26 @@ theorem prover with choice:
 <br><br>
 
 <pre>
-given a set of logical rules, propositions, and goals in the primary logical context
+in the primary logical context, given:
+    a set of logical rules
+    a set of logical propositions
+    a set of logical goals
 while True:
     compute the fixed-point saturation of the non-choice logical rules
     update the primary logical context with the fixed-point computation
     for every logical rule choice:
         create a working copy of the primary logical context
-        evaluate and record the effect of applying the choice in the working logical context
+        in the working logical context:
+            evaluate the effect of applying the choice
+        record the evaluated effect
     select the logical rule choice that has the best effect
-    apply the selected choice in the primary logical context
-    if a logical contradiction was reached in the primary logical context:
+    apply the selected choice (in the primary logical context)
+    if a logical contradiction was reached:
         raise a logical exception
-    if all logical goals are satisfied in the primary logical context:
+    if all logical goals are satisfied:
         break
 </pre>
-<br><br>
+<br>
 
 Above, by non-choice and choice logical rules, we refer
 to the
@@ -75,7 +80,7 @@ Consider two logical rules as follows:
 axm for x, y { a(x), b(x, y), c(y) -: e(x, y) }
 axm for x, y { a(x), d(x, y), c(y) -: f(x, y) }
 </pre>
-<br><br>
+<br>
 
 The two logical rules above induce several auxiliary rules
 that should be added to the logical rules evaluated during
@@ -89,7 +94,7 @@ axm for x { c(x) -: c'(x) }
 axm for x, y { e(x, y) -: e'(x, y) }
 axm for x, y { f(x, y) -: f'(x, y) }
 </pre>
-<br><br>
+<br>
 
 where relations <code>a'</code>, etc. are automatically
 defined as auxiliary relations.
