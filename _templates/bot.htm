@@ -2,15 +2,5 @@
 </div><!--#contentwrap-->
 <div id="contentwrapbot"></div>
 </div><!--#container-->
-<script>
-(function () {
-var b = function (a) {
-return a.split('').map(function (a) {
-return a.match(/[a-z]/) ? String.fromCharCode(((a.charCodeAt(0) - 84) % 26) + 97) : a;
-}).join('');
-};
-(function (a) { a.textContent = b(a.textContent); })(document.querySelector("#anzr"));
-})();
-</script>
 </body>
 </html>

@@ -102,6 +102,13 @@ logical rules to generate all permutations of their 3-tuple
 arguments.
 <br><br>
 
+Propositional facts may be declared using standard keywords,
+e.g. <code>let</code> or <code>where</code>
+(<code>let ABC <- triangle(A, B, C)</code>,
+<code>where -/collinear(A, B, C)</code>).
+Proof goals may be specified with a special keyword,
+e.g. <code>propose</code>.
+
 <h3>Language extensions</h3>
 <br><br>
 
@@ -144,15 +151,5 @@ evaluation-of-choices phase.
 </div><!--#contentwrap-->
 <div id="contentwrapbot"></div>
 </div><!--#container-->
-<script>
-(function () {
-var b = function (a) {
-return a.split('').map(function (a) {
-return a.match(/[a-z]/) ? String.fromCharCode(((a.charCodeAt(0) - 84) % 26) + 97) : a;
-}).join('');
-};
-(function (a) { a.textContent = b(a.textContent); })(document.querySelector("#anzr"));
-})();
-</script>
 </body>
 </html>
