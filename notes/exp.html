@@ -188,8 +188,8 @@ A second is how to implement the evaluation of logical
 rules.
 <a href="https://github.com/peterhj/meringue">Meringue</a>
 evaluates one-logical-rule-at-a-time,
-and uses <em>worst-case-optimal joins</em> to evaluate
-individual logical rules;
+and uses <em>worst-case-optimal joins</em> [NP12, V12]
+to evaluate individual logical rules;
 no geometry-specific logic is involved in the evaluation
 implementation.
 There is potentially some low-hanging fruit for speeding
@@ -218,6 +218,18 @@ Hybrid forward/backward-chaining approaches (that use
 backward-chaining to construct goals and subgoals, and
 forward-chaining to search from assumptions toward
 goals/subgoals) are an underexplored subject.
+<br><br>
+
+<h3>References</h3>
+<br><br>
+
+[NP12] Hung Q. Ngo, Ely Porat, Christopher R&eacute;, and Atri Rudra.
+  &ldquo;Worst-case Optimal Join Algorithms.&rdquo;
+  arXiv preprint <a href="https://arxiv.org/abs/1203.1952v1">1203.1952v1</a> (2012).
+<br>
+[V12] Todd L. Veldhuizen.
+  &ldquo;Leapfrog Triejoin: A Simple, Worst-Case Optimal Join Algorithm.&rdquo;
+  arXiv preprint <a href="https://arxiv.org/abs/1210.0481v5">1210.0481v5</a> (2012).
 
 </div>
 </div><!--#content-->
