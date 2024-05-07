@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<link rel="stylesheet" href="/tachyons.min.css">
+<link rel="stylesheet" href="/style.css">
+<title>Peter Jin</title>
+</head>
+<body>
+<div id="container">
+<div id="header">
+<div class="fl">
+<h1><a href="/">Peter Jin</a></h1>
+</div>
+<div class="fr">
+<span class="rhs sans-serif"><a href="/#notes">Notes</a></span>
+<span class="rhs sans-serif"><a href="/#contact">Contact</a></span>
+</div>
+<div class="cb-ns"></div>
+</div>
+<div id="contentwraptop"></div>
+<div id="contentwrap">
+<div id="content">
+<div>
+
+<h2>An exact parser from natural language math into logical forms</h2>
+<br><br>
+May 7, 2024
+<br><br>
+
+The task considered in this note is the following.
+Given a natural language math sentence, e.g.:
+<br><br>
+
+&ldquo;Let $ABC$ be a triangle with circumcenter $O$.&rdquo;
+<br><br>
+
+parse it into <a href="/notes/loglang.html">logical forms</a>,
+e.g.:
+<br><br>
+
+<pre>
+let $ABC$ <- triangle()
+let $O$ <- circumcenter($ABC$)
+</pre>
+<br>
+
+The logical forms corresponding to the natural language
+math can then be fed as input into, e.g.,
+<a href="/notes/exp.html">a forward-chaining prover</a>
+such as
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
+<br><br>
+
+Note that, depending on the complexity or size of the
+logical form domain, LLMs of various sizes can already do
+this task to an extent, either few-shot as a general base or
+instruction-tuned model, or with task-specific fine-tuning.
+<br><br>
+
+As to why one might <em>not</em> use an LLM for this task,
+such a question gets into the current limitations of LLMs
+for reasoning in general.
+<br><br>
+
+First, let us note that LLMs may be considered artificial
+<em>general</em> intelligence in the sense that they have
+generalization capabilities and general knowledge across
+many tasks and domains.
+In the space of tasks and domains, LLMs can be said to
+possess super-human <em>recall</em>
+(i.e. lower proportion of false negatives).
+However, it is also empirically observed that LLMs are
+often wrong (e.g. hallucination, false reasoning).
+It is in the latter sense that LLMs can also be said to
+possess sub-par <em>precision</em>
+(i.e. more false positives than desired or expected).
+<br><br>
+
+Thus, an alternative to LLMs may prefer to focus more on
+precision (fewer false positives) at the cost of recall
+(i.e. a narrower domain).
+<br><br>
+
+A second consideration relates to the computational cost
+of LLMs.
+Single-GPU inference of smaller LLMs runs at around
+100 token/s (to the nearest order of magnitude) for a
+single stream of tokens;
+batched inference can bring the number to thousands of
+token/s.
+This suggests a time-to-next-token latency on the order
+of 10 ms or greater.
+<br><br>
+
+As food for thought: what if the equivalent
+time-to-next-token latency were to be reduced by several
+orders of magnitude (e.g. 1 &mu;s to 100&mu;s)?
+<br><br>
+
+<h3>Test-driven development of a backtracking parser</h3>
+<br><br>
+
+With the above considerations in mind, a prototype exact
+parser from natural language mathematics into logical forms
+was implemented by hand.
+The prototype implementation is
+<a href="https://github.com/peterhj/praline">on GitHub</a>.
+<br><br>
+
+The &ldquo;minimum description length&rdquo; of the parser
+is rather long, and so a pseudocode description of the
+algorithm does not really elucidate how it works.
+However, some high level remarks may be informative.
+<br><br>
+
+The strategy by which the parser was written was
+essentially a form of <em>test-driven development</em>,
+in which test coverage was measured on a dataset of
+transcribed IMO shortlist geometry problems.
+Thus, the parser was incrementally implemented by making
+small modifications and refactorings to parse new test
+cases in the dataset.
+<br><br>
+
+The parsing algorithm itself is best thought of as a
+handful of <em>cooperating phases</em> that operate on a
+<em>shared backtracking stack</em>.
+In the current version of the parser, the cooperating
+phases are:
+(1) lexical segmentation,
+(2) lexical tree adjoining,
+and (3) syntactic tree building.
+(The algorithm has a strong resemblance to Pratt parsing
+[P73], which was explicitly an inspiration.)
+<br><br>
+
+Lexical segmentation basically just looks ahead in the
+text character stream and determines the next
+<em>lexical item</em> (essentially a token).
+
+<br><br>
+Lexical tree adjoining takes the current lexical item
+and determines which earlier lexical item is a suitable
+destination as either a parent or a left-sibling in the
+<em>lexical tree</em>.
+There are often multiple possible adjoining destinations,
+in which case they should be ordered from most likely to
+least.
+<br><br>
+
+Syntactic tree building transforms the lexical tree into
+a syntactic tree.
+This is done bottom-up and incrementally upon the
+adjoining of the current lexical item.
+This phase has the most complex implementation, though
+it looks like just a bunch of nested lookup tables.
+<br><br>
+
+All three cooperating phases can independently
+<em>fail</em> and <em>backtrack</em> using a single
+shared backtracking stack.
+For example, backtracking failure may occur during the
+lexical tree adjoining phase if the current lexical item
+were adjoined to the wrong parent or left-sibling,
+in which case the next possible adjoining destination
+would be tried after backtracking.
+<br><br>
+
+<h3>References</h3>
+<br><br>
+
+[P73] Vaughan R. Pratt.
+  &ldquo;Top down operator precedence.&rdquo;
+  <em>Proceedings of the 1st Annual ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages</em> (1973).
+
+</div>
+</div><!--#content-->
+</div><!--#contentwrap-->
+<div id="contentwrapbot"></div>
+</div><!--#container-->
+</body>
+</html>
