@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<link rel="stylesheet" href="/tachyons.min.css">
+<link rel="stylesheet" href="/style.css">
+<title>Peter Jin</title>
+</head>
+<body>
+<div id="container">
+<div id="header">
+<div class="fl">
+<h1><a href="/">Peter Jin</a></h1>
+</div>
+<div class="fr">
+<span class="rhs sans-serif"><a href="/#contact">Contact</a></span>
+</div>
+<div class="cb-ns"></div>
+</div>
+<div id="contentwraptop"></div>
+<div id="contentwrap">
+<div id="content">
+<div>
+
+<h2>An exploratory improvement operator for a forward-chaining prover</h2>
+<br><br>
+May 7, 2024
+<br><br>
+
+<h3>Background: forward-chaining theorem proving with choice</h3>
+<br><br>
+
+The following is a basic sketch of a forward-chaining
+theorem prover with choice:
+<br><br>
+
+<pre>
+given a set of logical rules, propositions, and goals in the primary logical context
+while True:
+    compute the fixed-point saturation of the non-choice logical rules
+    update the primary logical context with the fixed-point computation
+    for every logical rule choice:
+        create a working copy of the primary logical context
+        evaluate and record the effect of applying the choice in the working logical context
+    select the logical rule choice that has the best effect
+    apply the selected choice in the primary logical context
+    if a logical contradiction was reached in the primary logical context:
+        raise a logical exception
+    if all logical goals are satisfied in the primary logical context:
+        break
+</pre>
+<br><br>
+
+Above, by non-choice and choice logical rules, we refer
+to the
+<a href="/notes/loglang.html">previous note on logical languages</a>.
+<br><br>
+
+For our purposes, the key design decision is how to
+evaluate the effect of making a logical choice.
+The next section will describe such a design.
+(For a practical implementation, please see
+<a href="https://github.com/peterhj/meringue">Meringue</a>.)
+<br><br>
+
+<h3>Logical inference, partial evaluation, and intrinsic visit counts</h3>
+<br><br>
+
+Let us proceed with an example.
+Consider two logical rules as follows:
+<br><br>
+
+<pre>
+axm for x, y { a(x), b(x, y), c(y) -: e(x, y) }
+axm for x, y { a(x), d(x, y), c(y) -: f(x, y) }
+</pre>
+<br><br>
+
+The two logical rules above induce several auxiliary rules
+that should be added to the logical rules evaluated during
+fixed-point saturation.
+One set of auxiliary rules are essentially identities:
+<br><br>
+
+<pre>
+axm for x { a(x) -: a'(x) }
+axm for x { c(x) -: c'(x) }
+axm for x { e(x, y) -: e'(x, y) }
+axm for x { f(x, y) -: f'(x, y) }
+</pre>
+<br><br>
+
+where relations <code>a'</code>, etc. are automatically
+defined as auxiliary relations.
+<br><br>
+
+Another set of auxiliary rules consist of all the
+partially evaluated joins of the original rules:
+<br><br>
+
+<pre>
+axm for x { a(x), c(y) -: ac'(x, y) }
+axm for x { a(x), b(x, y) -: ab'(x, y) }
+axm for x { c(x), b(x, y) -: cb'(x, y) }
+axm for x { a(x), b(x, y), c(y) -: abc'(x, y) }
+axm for x { a(x), d(x, y) -: ad'(x, y) }
+axm for x { c(x), d(x, y) -: cd'(x, y) }
+axm for x { a(x), d(x, y), c(y) -: adc'(x, y) }
+</pre>
+<br><br>
+
+For logical rules that produce functional tuples or
+(in)equalities (i.e. unification),
+there are corresponding auxiliary logical rules that
+are triggered by the relevant unifications.
+<br><br>
+
+These auxiliary logical rules then directly induce
+an intrinsically motivated metric of the progress made
+on partial rule evaluation during logical inference.
+Specifically, when evaluating a logical rule choice,
+each produced logical tuple corresponding to an auxiliary
+relation (except for the tuple corresponding to the
+choice itself, on which the evaluation is conditioned)
+then increments a <em>visit count</em> specific to that
+auxiliary relation.
+Logical tuples are produced during fixed-point saturation
+(including both the primal and auxiliary logical rules),
+and the evaluation with choice may be done recursively.
+<br><br>
+
+The selection phase looks at the minimum of all auxiliary
+visit counts that were updated during the last evaluation,
+and selects the choice with least min-visit-count.
+(Choices that do not cause any visit count updates
+are considered to have infinite min-visit-count.)
+In practice, the min-visit-count selection rule is
+augmented with a noise mechanism, akin to epsilon-greedy
+policies used in reinforcement learning.
+<br><br>
+
+At a higher level, the use of auxiliary visit counts
+induced by auxiliary relations and auxiliary logical rules
+may be more simply seen as a sufficient implementation of
+an <em>exploration</em>-based <em>improvement operator</em>
+for a general forward-chaining prover.
+That is, the improvement operator takes the state of the
+forward-chaining prover (i.e. its logical context),
+and returns a new prover state with fresh logical tuples
+produced by inference of logical rules, all in bounded
+space and time.
+<br><br>
+
+<h3>Implementation details</h3>
+<br><br>
+
+Let us briefly discuss a couple of implementation details.
+<br><br>
+
+One is how to implement the (parallel) evaluation of choices.
+Two possible decisions here are copy-on-write and
+reversible data structures/algorithms.
+<a href="https://github.com/peterhj/meringue">Meringue</a>
+uses a copy-on-write prover context dispatched per
+thread-worker,
+which greatly simplifies the initial prototyping.
+As the copy-on-write implementation currently uses
+atomics and persistent data structures,
+an alternative implementation based on reversibility
+(e.g. via an <code>undo</code> operation implemented
+on the prover context, and each thread-worker maintaining
+a thread-local persistent context)
+is expected to be more performant, but as reversibility is
+a very &ldquo;leaky abstraction,&rdquo;
+so its implementation is not to be taken lightly.
+<br><br>
+
+A second is how to implement the evaluation of logical
+rules.
+<a href="https://github.com/peterhj/meringue">Meringue</a>
+evaluates one-logical-rule-at-a-time,
+and uses <em>worst-case-optimal joins</em> to evaluate
+individual logical rules;
+no geometry-specific logic is involved in the evaluation
+implementation.
+There is potentially some low-hanging fruit for speeding
+up general forward-chaining evaluation.
+<br><br>
+
+<h3>Forward- v. backward-chaining</h3>
+<br><br>
+
+While the discussion in this note is focused on
+forward-chaining (i.e. fixed-point-based) theorem provers,
+one may also consider how backward-chaining
+(i.e. backtracking/depth-first-search-based) provers fit
+into the overall picture.
+<br><br>
+
+Backward-chaining is useful for goal and subgoal
+decomposition via the backtracking/DFS stack order,
+which is formally complementary to the forward-chaining
+approach that takes goals/subgoals as given.
+On the other hand, since backward-chaining is strongly
+tied to backtracking/DFS, it is also fundamentally a
+sequential algorithm,
+whereas forward-chaining is highly embarassingly parallel.
+Hybrid forward/backward-chaining approaches (that use
+backward-chaining to construct goals and subgoals, and
+forward-chaining to search from assumptions toward
+goals/subgoals) are an underexplored subject.
+
+</div>
+</div><!--#content-->
+</div><!--#contentwrap-->
+<div id="contentwrapbot"></div>
+</div><!--#container-->
+</body>
+</html>
