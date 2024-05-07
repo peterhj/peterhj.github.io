@@ -14,6 +14,7 @@
 <h1><a href="/">Peter Jin</a></h1>
 </div>
 <div class="fr">
+<span class="rhs sans-serif"><a href="/#notes">Notes</a></span>
 <span class="rhs sans-serif"><a href="/#contact">Contact</a></span>
 </div>
 <div class="cb-ns"></div>
@@ -82,8 +83,9 @@ axm for x, y { a(x), d(x, y), c(y) -: f(x, y) }
 </pre>
 <br>
 
-The two logical rules above induce several auxiliary rules
-that should be added to the logical rules evaluated during
+The two primal logical rules above induce several
+<em>auxiliary</em> logical rules that should be added
+to the full set of logical rules evaluated during
 fixed-point saturation.
 One set of auxiliary rules are essentially identities:
 <br><br>
@@ -93,6 +95,8 @@ axm for x { a(x) -: a'(x) }
 axm for x { c(x) -: c'(x) }
 axm for x, y { e(x, y) -: e'(x, y) }
 axm for x, y { f(x, y) -: f'(x, y) }
+axm for x, y { a(x), b(x, y), c(y) -: abc'(x, y) }
+axm for x, y { a(x), d(x, y), c(y) -: adc'(x, y) }
 </pre>
 <br>
 
@@ -101,19 +105,18 @@ defined as auxiliary relations.
 <br><br>
 
 Another set of auxiliary rules consist of all the
-partially evaluated joins of the original rules:
+non-trivial partially evaluated joins of the primal
+logical rules:
 <br><br>
 
 <pre>
 axm for x, y { a(x), c(y) -: ac'(x, y) }
 axm for x, y { a(x), b(x, y) -: ab'(x, y) }
 axm for x, y { c(x), b(x, y) -: cb'(x, y) }
-axm for x, y { a(x), b(x, y), c(y) -: abc'(x, y) }
 axm for x, y { a(x), d(x, y) -: ad'(x, y) }
 axm for x, y { c(x), d(x, y) -: cd'(x, y) }
-axm for x, y { a(x), d(x, y), c(y) -: adc'(x, y) }
 </pre>
-<br><br>
+<br>
 
 For logical rules that produce functional tuples or
 (in)equalities (i.e. unification),
