@@ -215,6 +215,8 @@ forward-chaining (i.e. fixed-point-based) theorem provers,
 one may also consider how backward-chaining
 (i.e. backtracking/depth-first-search-based) provers fit
 into the overall picture.
+(Prolog is the classic example of a backward-chaining
+prover.)
 <br><br>
 
 The &ldquo;inner loop&rdquo; of forward-chaining is
@@ -227,8 +229,10 @@ parallel &ldquo;outer loop&rdquo; around many independent
 inner loop joins.
 (The analog of &ldquo;outer loop&rdquo;-parallelization
 for backward-chaining is called <em>or-parallelism</em>,
-which considers multiple disjunctive hypothetical
-<em>branches</em> in parallel.)
+which considers disjunctive hypothetical <em>branches</em>
+in parallel;
+however, forward-chaining is expected to be easier to
+parallelize than backward-chaining.)
 Second, the backtracking/DFS implementation of a
 worst-case-optimal join, as used in forward-chaining,
 will make different tradeoffs and optimizations compared
@@ -258,10 +262,10 @@ intermediate geometric constructions.
 The DD+AR solver (DD = &ldquo;deductive database,&rdquo;
 AR = &ldquo;algebraic reasoning&rdquo;)
 is essentially a forward-chaining prover augmented with
-special geometry domain-specific knowledge.
+special geometry domain-specific deduction rules.
 The result is that the fixed-point saturation computed
 by DD+AR should be larger than the fixed-point of a
-DD-only-style fixed-point, as in
+more generic fixed-point, as in
 <a href="https://github.com/peterhj/meringue">Meringue</a>.
 <br><br>
 
@@ -296,6 +300,11 @@ of an olympiad-level geometry problem, but DD+AR alone
 please see the discussion of IMO 2009 P2 in the README of
 <a href="https://github.com/peterhj/meringue">Meringue</a>.
 <br><br>
+
+<h3>Acknowledgments</h3>
+<br><br>
+
+We thank David Shin for helpful discussions and feedback.
 
 <h3>References</h3>
 <br><br>
