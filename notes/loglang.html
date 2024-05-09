@@ -135,10 +135,21 @@ the <code>:-</code> or <code>-:</code> arrows,
 a non-pure logical rule may be defined by the arrows
 <code>:~</code> (right-to-left non-pure rule) or
 <code>~:</code> (left-to-right non-pure rule).
+<br><br>
+
 Non-pure logical rules additionally may also introduce
 non-pure <em>logical destruction</em> <code>~/</code>
 on the conclusion side of the rule,
 which removes a logical tuple argument.
+<br><br>
+
+Even more generally, a non-pure <em>imperative</em>
+effect may be introduced with the <code>!</code>
+(read: &ldquo;bang&rdquo;) operator.
+(In Prolog, the bang operator is typically used for
+<em>cut</em>, but we are not here to reproduce Prolog.)
+Imperative effects are, most generally, opaque and
+sequential (i.e. non-monotonic).
 <br><br>
 
 A functional choice as used for geometric constructions
