@@ -27,13 +27,14 @@
 <h2>An exact parser from natural language math into logical forms</h2>
 <br><br>
 May 7, 2024
+<em>(last updated May 9, 2024)</em>
 <br><br>
 
 The task considered in this note is the following.
 Given a natural language math sentence, e.g.:
 <br><br>
 
-&ldquo;Let $ABC$ be a triangle with circumcenter $O$.&rdquo;
+&ldquo;Let $ABC$ be an acute triangle with circumcenter $O$.&rdquo;
 <br><br>
 
 parse it into <a href="/notes/loglang.html">logical forms</a>,
@@ -42,6 +43,7 @@ e.g.:
 
 <pre>
 let $ABC$ <- triangle()
+where acute($ABC$)
 let $O$ <- circumcenter($ABC$)
 </pre>
 <br>
@@ -133,7 +135,8 @@ phases are:
 (2) lexical tree adjoining,
 and (3) syntactic tree building.
 (The algorithm has a strong resemblance to Pratt parsing
-[P73], which was explicitly an inspiration.)
+[<a href="#P73" class="cite">P73</a>],
+which was explicitly an inspiration.)
 <br><br>
 
 Lexical segmentation basically just looks ahead in the
@@ -179,9 +182,11 @@ while its precision is perfect by construction.
 <h3>References</h3>
 <br><br>
 
-[P73] Vaughan R. Pratt.
-  &ldquo;Top down operator precedence.&rdquo;
-  <em>Proceedings of the 1st Annual ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages</em> (1973).
+<span id="P73">[P73]
+Vaughan R. Pratt.
+&ldquo;Top down operator precedence.&rdquo;
+In <em>Proceedings of the 1st Annual ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages</em> (1973).
+</span>
 
 </div>
 </div><!--#content-->

@@ -27,7 +27,7 @@
 <h2>An exploratory improvement operator for a forward-chaining prover</h2>
 <br><br>
 May 7, 2024
-<em>(updated May 8, 2024)</em>
+<em>(last updated May 9, 2024)</em>
 <br><br>
 
 <h3>Background: forward-chaining theorem proving with choice</h3>
@@ -68,7 +68,8 @@ Forward-chaining theorem provers for geometry solving
 will often refer to the above forward-chaining sketch as
 a <em>deductive database</em>,
 where the choices are restricted to logical rules that
-produce geometric constructions [CG00].
+produce geometric constructions
+[<a href="#CG00" class="cite">CG00</a>].
 <br><br>
 
 For our purposes, the key design decision is how to
@@ -196,7 +197,9 @@ A second is how to implement the evaluation of logical
 rules.
 <a href="https://github.com/peterhj/meringue">Meringue</a>
 evaluates one-logical-rule-at-a-time,
-and uses <em>worst-case-optimal joins</em> [NP12, V12]
+and uses <em>worst-case-optimal joins</em>
+[<a href="#NP12" class="cite">NP12</a>,
+<a href="#V12" class="cite">V12</a>]
 to evaluate individual logical rules;
 no geometry-specific logic is involved in the evaluation
 implementation.
@@ -232,6 +235,7 @@ goals/subgoals) are an underexplored subject.
 <br><br>
 
 <a href="https://github.com/google-deepmind/alphageometry">AlphaGeometry</a>
+[<a href="#TW24" class="cite">TW24</a>]
 consists of (1) a symbolic geometry solver, DD+AR, and
 (2) a transformer-based language model for proposing
 intermediate geometric constructions.
@@ -276,17 +280,29 @@ please see the discussion of IMO 2009 P2 in the README of
 <h3>References</h3>
 <br><br>
 
-[CG00] Shang-Ching Chou, Xiao-Shan Gao, and Jing-Zhong Zhang.
-  &ldquo;A Deductive Database Approach to Automated Geometry Theorem Proving and Discovering.&rdquo;
-  <em>Journal of Automated Reasoning</em> 25, p. 219-246 (2000).
+<span id="CG00">[CG00]
+Shang-Ching Chou, Xiao-Shan Gao, and Jing-Zhong Zhang.
+&ldquo;A Deductive Database Approach to Automated Geometry Theorem Proving and Discovering.&rdquo;
+<em>Journal of Automated Reasoning</em> 25, pp. 219-246 (2000).
+</span>
 <br>
-[NP12] Hung Q. Ngo, Ely Porat, Christopher R&eacute;, and Atri Rudra.
-  &ldquo;Worst-case Optimal Join Algorithms.&rdquo;
-  arXiv preprint <a href="https://arxiv.org/abs/1203.1952v1">1203.1952v1</a> (2012).
+<span id="NP12">[NP12]
+Hung Q. Ngo, Ely Porat, Christopher R&eacute;, and Atri Rudra.
+&ldquo;Worst-case Optimal Join Algorithms.&rdquo;
+arXiv preprint <a href="https://arxiv.org/abs/1203.1952v1">1203.1952v1</a> (2012).
+</span>
 <br>
-[V12] Todd L. Veldhuizen.
-  &ldquo;Leapfrog Triejoin: A Simple, Worst-Case Optimal Join Algorithm.&rdquo;
-  arXiv preprint <a href="https://arxiv.org/abs/1210.0481v5">1210.0481v5</a> (2012).
+<span id="TW24">[TW24]
+Trieu H. Trinh, Yuhuai Wu, Quoc V. Le, He He, and Thang Luong.
+&ldquo;Solving olympiad geometry without human demonstrations.&rdquo;
+<em>Nature</em> 625, pp. 476-482 (2024).
+</span>
+<br>
+<span id="V12">[V12]
+Todd L. Veldhuizen.
+&ldquo;Leapfrog Triejoin: A Simple, Worst-Case Optimal Join Algorithm.&rdquo;
+arXiv preprint <a href="https://arxiv.org/abs/1210.0481v5">1210.0481v5</a> (2012).
+</span>
 
 </div>
 </div><!--#content-->

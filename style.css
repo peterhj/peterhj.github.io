@@ -11,6 +11,7 @@ code { font-size: 14px; }
 .rhs_smol { font-size: 12px; line-height: 36px; }
 .rhs a:hover, .rhs a:focus { color: #666; }
 .rhs a.disabled { pointer-events: none; color: #999; }
+a.cite { text-decoration: underline; text-decoration-style: dotted; }
 #dntoggle { text-decoration: none; color: #666; }
 #dntoggle:hover, #dntoggle:focus { color: #333; }
 #container { width: 630px; margin-left: auto; margin-right: auto; background-color: #f9f9f9; }
