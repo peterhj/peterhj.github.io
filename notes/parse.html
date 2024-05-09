@@ -129,6 +129,14 @@ cases in the dataset.
 The parsing algorithm itself is best thought of as a
 handful of <em>cooperating phases</em> that operate on a
 <em>shared backtracking stack</em>.
+During a parse, the cooperating phases alternate,
+each phase committing an operation (or,
+<em>choice point</em>) on the shared backtracking stack.
+A parse failure that arises during any of the phases
+causes backtracking of the stack in depth-first-search
+order.
+<br><br>
+
 In the current version of the parser, the cooperating
 phases are:
 (1) lexical segmentation,
@@ -166,8 +174,8 @@ it looks like just a bunch of nested lookup tables.
 <br><br>
 
 All three cooperating phases can independently
-<em>fail</em> and <em>backtrack</em> using a single
-shared backtracking stack.
+<em>fail</em> and <em>backtrack</em> using the shared
+backtracking stack.
 <br><br>
 
 During lexical segmentation,
