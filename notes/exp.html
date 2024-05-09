@@ -217,14 +217,28 @@ one may also consider how backward-chaining
 into the overall picture.
 <br><br>
 
+The &ldquo;inner loop&rdquo; of forward-chaining is
+usually a <em>join</em> computation implemented by a
+backtracking/DFS-based algorithm very similar to
+that of backward-chaining.
+However, there are two differences.
+First, forward-chaining then wraps an embarassingly
+parallel &ldquo;outer loop&rdquo; around many independent
+inner loop joins.
+(The analog of &ldquo;outer loop&rdquo;-parallelization
+for backward-chaining is called <em>or-parallelism</em>,
+which considers multiple disjunctive hypothetical
+<em>branches</em> in parallel.)
+Second, the backtracking/DFS implementation of a
+worst-case-optimal join, as used in forward-chaining,
+will make different tradeoffs and optimizations compared
+to the implementation as used in backward-chaining.
+<br><br>
+
 Backward-chaining is useful for goal and subgoal
 decomposition via the backtracking/DFS stack order,
 which is formally complementary to the forward-chaining
 approach that takes goals/subgoals as given.
-On the other hand, since backward-chaining is strongly
-tied to backtracking/DFS, it is also fundamentally a
-sequential algorithm,
-whereas forward-chaining is highly embarassingly parallel.
 Hybrid forward/backward-chaining approaches (that use
 backward-chaining to construct goals and subgoals, and
 forward-chaining to search from assumptions toward
@@ -258,17 +272,23 @@ language model.
 Thus, on many olympiad-level problems, DD+AR alone may
 halt with failure because a successful proof requires an
 intermediate construction, which DD+AR alone cannot supply.
+In other words, DD+AR alone may be said to be
+<em>not complete</em>.
 <br><br>
 
 On the other hand, the exploration-based improvement
 described earlier does serve as a general algorithmic
 method that may also be applied to choosing intermediate
-geometry constructions;
-forward-chaining with exploration-based improvement
+geometry constructions.
+Forward-chaining with exploration-based improvement
 <em>will not halt</em> until the proof goal is found,
 or an externally imposed timeout is reached
 (or a logical contradiction is uncovered; but such a
-scenario requires support from the logic).
+scenario requires support from the logic);
+in other words, forward-chaining with exploration-based
+improvement is <em>complete</em>.
+<br><br>
+
 Such an example was found, where forward-chaining with
 exploration successfully finds a proof of a hard reduction
 of an olympiad-level geometry problem, but DD+AR alone
