@@ -139,11 +139,14 @@ and (3) syntactic tree building.
 which was explicitly an inspiration.)
 <br><br>
 
-Lexical segmentation basically just looks ahead in the
-text character stream and determines the next
+Lexical segmentation looks ahead in the input text
+character stream and determines the next
 <em>lexical item</em> (essentially a token).
-
+Lexical segmentation also assigns the lexical item
+a <em>logical kind</em>, which is analogous to a
+&ldquo;part-of-speech.&rdquo;
 <br><br>
+
 Lexical tree adjoining takes the current lexical item
 and determines which earlier lexical item is a suitable
 destination as either a parent or a left-sibling in the
@@ -165,11 +168,31 @@ it looks like just a bunch of nested lookup tables.
 All three cooperating phases can independently
 <em>fail</em> and <em>backtrack</em> using a single
 shared backtracking stack.
-For example, backtracking failure may occur during the
-lexical tree adjoining phase if the current lexical item
-were adjoined to the wrong parent or left-sibling,
-in which case the next possible adjoining destination
-would be tried after backtracking.
+<br><br>
+
+During lexical segmentation,
+the next lexical item may be too long, when instead
+a string prefix of the item should have been segmented.
+The assigned logical kind may also cause failure.
+<br><br>
+
+During lexical tree adjoining,
+if the current lexical item were adjoined to the wrong
+parent or left-sibling,
+then the next possible adjoining destination would be
+tried after backtracking.
+Pairwise comparisons of the lexical items&rsquo;
+logical kinds are sometimes sufficient to catch what
+would be an erroneous parse, and to instead fail early.
+<br><br>
+
+Finally, during syntactic tree building,
+a typical failure is a missing case in one of the
+lookup tables.
+The missing case could simply be an implementation
+issue, which is manually fixed by adding the relevant
+case handling code,
+but could also be an outright erroneous case.
 <br><br>
 
 In practice, the parser is quite fast on its domain of
@@ -177,6 +200,12 @@ validity, parsing whole sentences in microseconds.
 Its recall is at 21% of sentences in the IMO geometry
 dataset after several weeks worth of implementation,
 while its precision is perfect by construction.
+<br><br>
+
+<h3>Acknowledgments</h3>
+<br><br>
+
+We thank David Shin for helpful discussions and feedback.
 <br><br>
 
 <h3>References</h3>
