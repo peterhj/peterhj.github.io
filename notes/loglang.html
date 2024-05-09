@@ -52,8 +52,12 @@ e.g. cut or non-pure I/O.
 
 For example, the line:
 <br><br>
-<code>axm for a, b, c the abc { triangle(a, b, c) -> abc :- -/collinear(a, b, c) }</code>
-<br><br>
+
+<pre>
+axm for a, b, c the abc { triangle(a, b, c) -> abc :- -/collinear(a, b, c) }
+</pre>
+<br>
+
 defines a logical rule that may be translated into the
 following natural language sentence:
 &ldquo;Suppose that $a$, $b$, and $c$ are not collinear.
@@ -89,10 +93,14 @@ The free variables <code>triangle</code> and
 <code>collinear</code> above refer to logical relations,
 which must be defined prior to their use in a logical rule.
 Sensible definitions would be the two lines:
+<br><br>
+
 <pre>
 symm fun triangle/3+1
 symm rel collinear/3
 </pre>
+<br>
+
 The <code>triangle</code> functional relation has a
 functional arity of <code>3+1</code>, i.e. it is a function
 of a 3-tuple argument returning exactly 1 output.
