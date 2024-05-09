@@ -27,6 +27,7 @@
 <h2>An exploratory improvement operator for a forward-chaining prover</h2>
 <br><br>
 May 7, 2024
+<em>(updated May 8, 2024)</em>
 <br><br>
 
 <h3>Background: forward-chaining theorem proving with choice</h3>
@@ -225,6 +226,51 @@ Hybrid forward/backward-chaining approaches (that use
 backward-chaining to construct goals and subgoals, and
 forward-chaining to search from assumptions toward
 goals/subgoals) are an underexplored subject.
+<br><br>
+
+<h3>Comparison with AlphaGeometry (DD+AR)</h3>
+<br><br>
+
+<a href="https://github.com/google-deepmind/alphageometry">AlphaGeometry</a>
+consists of (1) a symbolic geometry solver, DD+AR, and
+(2) a transformer-based language model for proposing
+intermediate geometric constructions.
+<br><br>
+
+The DD+AR solver (DD = &ldquo;deductive database,&rdquo;
+AR = &ldquo;algebraic reasoning&rdquo;)
+is essentially a forward-chaining prover augmented with
+special geometry domain-specific knowledge.
+The result is that the fixed-point saturation computed
+by DD+AR should be larger than the fixed-point of a
+DD-only-style fixed-point, as in
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
+<br><br>
+
+However, DD+AR on its own is not equipped with a method
+for choosing intermediate geometric constructions;
+DD+AR usually must be paired with the geometry-tuned
+language model.
+Thus, on many olympiad-level problems, DD+AR alone may
+halt with failure because a successful proof requires an
+intermediate construction, which DD+AR alone cannot supply.
+<br><br>
+
+On the other hand, the exploration-based improvement
+described earlier does serve as a general algorithmic
+method that may also be applied to choosing intermediate
+geometry constructions;
+forward-chaining with exploration-based improvement
+<em>will not halt</em> until the proof goal is found,
+or an externally imposed timeout is reached
+(or a logical contradiction is uncovered; but such a
+scenario requires support from the logic).
+Such an example was found, where forward-chaining with
+exploration successfully finds a proof of a hard reduction
+of an olympiad-level geometry problem, but DD+AR alone
+(without the language model) halts early and thus fails;
+please see the discussion of IMO 2009 P2 in the README of
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
 <br><br>
 
 <h3>References</h3>
