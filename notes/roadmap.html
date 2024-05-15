@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<link rel="stylesheet" href="/tachyons.min.css">
+<link rel="stylesheet" href="/style.css">
+<title>Peter Jin</title>
+</head>
+<body>
+<div id="container">
+<div id="header">
+<div class="fl">
+<h1><a href="/">Peter Jin</a></h1>
+</div>
+<div class="fr">
+<span class="rhs sans-serif"><a href="/#notes">Notes</a></span>
+<span class="rhs sans-serif"><a href="/#contact">Contact</a></span>
+</div>
+<div class="cb-ns"></div>
+</div>
+<div id="contentwraptop"></div>
+<div id="contentwrap">
+<div id="content">
+<div>
+
+<h2>Automated olympiad solving: a roadmap</h2>
+<br><br>
+May 14, 2024
+<br><br>
+
+This note summarizes progress the author has made toward
+automated solving of olympiad-style math problems,
+building on
+<a href="/note/exp.html">earlier work on symbolic provers applied to geometry problems</a>
+(<a href="https://github.com/peterhj/meringue">Meringue</a>),
+and also proposes a roadmap for solving domains other than
+geometry.
+<br><br>
+
+The geometry domain-specific knowledge in the
+<a href="https://github.com/peterhj/meringue">Meringue</a>
+prover is encoded in
+<a href="https://github.com/peterhj/meringue/blob/master/data/geometry.txt">a single-file library of slightly over 200 lines</a>.
+The library is written in a
+<a href="/notes/loglang.html">logical form language</a>,
+and defines logical relations and logical rules
+(axioms, theorems) relevant to olympiad-style geometry.
+<br><br>
+
+The geometry library was constructed by hand, and should
+be considered a work in progress;
+it is essentially the minimum viable geometry library that
+can be used to define a non-trivial test case problem
+(a <a href="https://github.com/peterhj/meringue/blob/master/data/reduced_imo_2009_p2_v3.txt">reduction of IMO 2009 P2</a>),
+as well as to find a proof for that same problem.
+<br><br>
+
+<a href="https://github.com/peterhj/meringue">Meringue</a>
+is not an end-to-end olympiad geometry solver, in that the
+prover cannot directly accept a natural language geometry
+problem and return a natural language (LaTeX) proof.
+<a href="/notes/parse.html">A parser from natural language geometry to logical forms</a>,
+<a href="https://github.com/peterhj/praline">Praline</a>,
+was prototyped;
+LLMs can also be prompted or fine-tuned to translate from
+natural language math to logical forms.
+<br><br>
+
+Whether using LLMs or an exact parser, the approach outlined
+above is similar to a compiler architecture at a high level.
+First, a <em>front-end</em> translates the natural language
+input into an <em>intermediate representation</em>
+(i.e. logical forms).
+Then, a <em>back-end</em> translates the logical form
+intermediate representation and emits an output,
+e.g. either a formal or natural language proof,
+via a general prover equipped with library of knowledge.
+Over the course of running the front-end and the back-end,
+such a prover internally builds a <em>symbolic model</em>
+of the problem.
+<br><br>
+
+The compiler-like approach described above, and applied to
+geometry, inspires some natural questions related to whether
+the approach might generalize to the other three categories
+of olympiad math problems
+(algebra, number theory, combinatorics).
+<br><br>
+
+1.  What was the manual process by which the geometry
+    library was constructed?
+<br>
+2.  Can this approach be generalized to domains other
+    than geometry?
+<br>
+3.  Can a geometry library, or a library of knowledge
+    in other domains, be automatically constructed?
+<br><br>
+
+<h3>Manually constructing an olympiad geometry library</h3>
+<br><br>
+
+The short answer is that the original
+<a href="https://github.com/peterhj/meringue/blob/master/data/geometry.txt">geometry library</a>
+was constructed by the author&rsquo;s own knowledge of
+geometry,
+and by reading various notes and other reference materials
+specifically made for olympiad geometry preparation.
+This included a grab bag of relations, axioms, and theorems.
+<br><br>
+
+There is a background assumption that natural language
+mathematical content cleanly translates to a logical form
+representation.
+At least for olympiad geometry, this was definitely true.
+<br><br>
+
+How were the axioms and theorems chosen?
+Regarding theorems, a shortcut is to look at some example
+proofs to see what sorts of theorems are used.
+Note that this <strong><em>does not</em></strong> introduce
+a &ldquo;pretraining-on-the-test-set&rdquo; effect, as the
+theorems used in proofs are generally the same as those
+encountered in texts and other prep materials.
+In other words,
+the theorems used in proofs are <em>in-distribution</em>
+with respect to a textbook-like dataset.
+Also, simply possessing a list of theorems used in proofs
+does not help with the hard part of proving,
+which is selecting which theorems to apply and when to
+apply them,
+except in the sense of narrowing the domain to the set of
+theorems known to be relevant for the problem
+(e.g. only geometry theorems for a geometry problem).
+<br><br>
+
+The axioms chosen were a mishmash of axiomatizations of
+Euclidean geometry.
+However, there was one set of axioms which we found useful
+to introduce that is not normally explicitly presented.
+These axioms operate on a <em>half-plane</em> relation
+between a point and a line.
+Technically, such a half-plane relation could be emulated
+via the <em>betweenness</em> relation that is part of some
+standard axiomatizations of Euclidean geometry.
+However, the half-plane relation is useful for concisely
+specifying the orientation of otherwise ambiguous diagrams.
+<br><br>
+
+<h3>Generalization to other domains</h3>
+<br><br>
+
+It is known (though, perhaps not commonly so) that,
+of the IMO problem categories, geometry is potentially
+the &ldquo;easiest&rdquo; to solve.
+One reason is that IMO geometry can be brute-forced
+through a method called &ldquo;bashing&rdquo; or
+&ldquo;dumbassing&rdquo;:
+basically translating a geometry problem into complex
+coordinates and calculating a solution to derived
+set of equations.
+<br><br>
+
+(To be clear, the
+<a href="/notes/exp.html">forward-chaining prover approach</a>
+implemented in 
+<a href="https://github.com/peterhj/meringue">Meringue</a>
+<strong><em>does not</em></strong>
+do the bashing approach.
+Instead, Meringue finds proofs via a
+<strong><em>purely logical</em></strong> approach:
+by starting from assumptions, applying axioms and
+theorems, and making constructions,
+all while only using the geometry knowledge encoded
+in the given library.)
+<br><br>
+
+There is a second (perhaps even less commonly known) reason
+that geometry is potentially the
+&ldquo;easiest&rdquo; category of IMO problems,
+which is that key parts of the logical structure of most IMO
+geometry problems are <em>propositional</em>.
+That is, the assumptions in the problem and the goal to be
+proved are all quantifier-free logical propositions.
+(Note that the axioms and theorems in the geometry library
+do contain universal quantifiers.)
+<br><br>
+
+Partly propositional problem structure greatly simplifies
+the design of the minimum viable prover that can find proofs
+of non-trivial geometry problems.
+This is essentially the desideratum of
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
+<br><br>
+
+On the other hand, such a minimum viable prover is not
+equipped to prove an arbitrary statement in
+<em>first-order logic</em>.
+In particular, proving first-order goals with (universal)
+quantifiers is not supported in the current implementation
+of
+<a href="https://github.com/peterhj/meringue">Meringue</a>.
+First-order goals and terms with quantifiers do appear in
+other IMO categories, including algebra and number theory.
+At the very least, a roadmap is needed for fully supporting
+first-order logic.
+<br><br>
+
+Backward-chaining provers are naturally equipped with the
+appropriate semantics of first-order <em>unification</em>,
+and so can prove first-order goals with quantifiers.
+So, one possible future generalization to other domains may
+be a hybrid approach that combines features of forward- and
+backward-chaining.
+It is also possible to design forward-chaining alone with
+first-order unification,
+though such a design would need higher-order deduction
+rules.
+<br><br>
+
+Another approach would involve the translation of
+first-order goals and terms into logically equivalent
+propositional goals via
+<em>quotation</em> and <em>unquotation</em>
+[<a href="#Q81" class="cite">Q81</a>].
+In fact, we have successfully performed small scale
+experiments on finding proofs of abstract algebra problems
+using a simple implementation of the quotation-based
+approach.
+<br><br>
+
+There are other domains, including olympiad combinatorics
+and programming, which will need extensions to the
+<a href="/notes/loglang.html">logical language</a>
+in order to be effectively formalized.
+The relevant extensions are likely to include
+<em>imperative effects</em> and
+<em>first-class logical contexts</em>.
+<br><br>
+
+<h3>Automated construction of libraries</h3>
+<br><br>
+
+Could the construction of formal libraries for provers (in
+general domains) also be scaled up?
+<br><br>
+
+The near term answer is to directly use existing LLMs, or
+LLM-based systems, to perform the task of distilling formal
+relations, rules, assumptions, and goals from mathematical
+texts;
+this is the <em>auto-formalization</em> approach.
+<br><br>
+
+<a href="/notes/parse.html">An earlier note</a> described
+<a href="https://github.com/peterhj/praline">an exact parser</a>
+from natural language math into logical forms.
+Unlike pretrained LLMs, which trade greater recall on many
+tasks and domains for lesser (though still impressive)
+precision,
+a parser chooses a narrower recall for greater precision on
+its domain of validity.
+The parser as described earlier can narrowly translate
+natural language statements of geometry problems into a
+logical form syntax capable of expressing propositional
+assumptions and proof goals.
+<br><br>
+
+Might such a parsing approach scale?
+As the original parser was handwritten, a natural next step
+could be to instead apply an LLM-based system to improve the
+parser in a process analogous to the dataset-based,
+test-driven-development followed by the human author.
+Whether one might expect such an approach to work depends
+on one&rsquo;s view of LLM capabilities and scaling laws.
+<br><br>
+
+<h3>Acknowledgments</h3>
+<br><br>
+
+This note is the author&rsquo;s attempt to answer questions
+posed during discussions with David Shin.
+<br><br>
+
+<h3>References</h3>
+<br><br>
+
+<span id="Q81">[Q81]
+Willard Van Orman Quine.
+<em>Mathematical Logic</em> (1981).
+</span>
+
+</div>
+</div><!--#content-->
+</div><!--#contentwrap-->
+<div id="contentwrapbot"></div>
+</div><!--#container-->
+</body>
+</html>
