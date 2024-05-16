@@ -27,7 +27,7 @@
 <h2>An exploratory improvement operator for a forward-chaining prover</h2>
 <br><br>
 May 7, 2024
-<em>(last updated May 9, 2024)</em>
+<em>(last updated May 15, 2024)</em>
 <br><br>
 
 <h3>Background: forward-chaining theorem proving with choice</h3>
@@ -187,7 +187,8 @@ atomics and persistent data structures,
 an alternative implementation based on reversibility
 (e.g. via an <code>undo</code> operation implemented
 on the prover context, and each thread-worker maintaining
-a thread-local persistent context)
+a thread-local context with mutable data structures and a
+rollback log)
 is expected to be more performant, but as reversibility is
 a very &ldquo;leaky abstraction,&rdquo;
 so its implementation is not to be taken lightly.
