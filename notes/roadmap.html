@@ -24,9 +24,10 @@
 <div id="content">
 <div>
 
-<h2>Automated olympiad solving: a roadmap</h2>
+<h2>Automated olympiad solving: towards a roadmap</h2>
 <br><br>
 May 14, 2024
+<em>(updated May 21, 2024)</em>
 <br><br>
 
 This note summarizes progress the author has made toward
@@ -230,13 +231,31 @@ using a simple implementation of the quotation-based
 approach.
 <br><br>
 
-There are other domains, including olympiad combinatorics
-and programming, which will need extensions to the
+There are other domains, including combinatorics,
+which will need extensions to the
 <a href="/notes/loglang.html">logical language</a>
 in order to be effectively formalized.
 The relevant extensions are likely to include
 <em>imperative effects</em> and
 <em>first-class logical contexts</em>.
+<br><br>
+
+Going beyond the design of the logical framework,
+there are also extra-logical aspects of problem-solving
+that will need to be addressed.
+For example, plugging in small constants or guessing
+solutions are common techniques that do not seem strictly
+&ldquo;logical&rdquo; but are more heuristic, yet are also
+likely to be necessary to efficiently solve problems within
+time limits.
+<br><br>
+
+Closely related to the synthesis of logical and heuristic
+methods is the very broad notion of
+&ldquo;learned reasoning,&rdquo; of which LLMs are the most
+representative example today.
+We expect fusions of LLMs with solvers to be a very
+promising direction.
 <br><br>
 
 <h3>Automated construction of libraries</h3>
