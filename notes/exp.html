@@ -27,7 +27,7 @@
 <h2>An exploratory improvement operator for a forward-chaining prover</h2>
 <br><br>
 May 7, 2024
-<em>(last updated May 15, 2024)</em>
+<em>(last updated May 22, 2024)</em>
 <br><br>
 
 <h3>Background: forward-chaining theorem proving with choice</h3>
@@ -198,7 +198,8 @@ A second is how to implement the evaluation of logical
 rules.
 <a href="https://github.com/peterhj/meringue">Meringue</a>
 evaluates one-logical-rule-at-a-time,
-and uses <em>worst-case-optimal joins</em>
+and implements <em>semi-naive evaluation</em> with
+<em>worst-case-optimal joins</em>
 [<a href="#NP12" class="cite">NP12</a>,
 <a href="#V12" class="cite">V12</a>]
 to evaluate individual logical rules;
