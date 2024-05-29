@@ -347,7 +347,11 @@ labeled every training sample.
 Typical &ldquo;inference throughput&rdquo; of the parser
 is about 0.1-1 ms/sentence,
 or equivalently around 0.01-0.1 ms/token,
-to the nearest order of magnitude.
+on a single CPU core
+(to the nearest order of magnitude).
+Extrapolating to 100x cores,
+batched throughput is expected to be
+0.0001-0.001 ms/token.
 <br><br>
 
 What about the performance impact of backtracking?
@@ -366,6 +370,18 @@ on each iteration.
 During the second half, the parsing architecture was frozen
 on the cooperating backtracking architecture described
 earlier, and parser improvement proceeded in earnest.
+<br><br>
+
+Finally, why did the parser improvement stop at 21% recall?
+Well, that was simply an arbitrary stopping point.
+Looking at the actual data, I can see a continued
+handwritten implementation of the parser reaching over 90%
+recall before it would make sense to focus on other datasets
+rather than chasing the long tail of &ldquo;unique&rdquo;
+training samples in the current dataset.
+However, the next implementation of the parser will likely
+incorporate lessons learned, with an eye toward automated
+parser improvement.
 <br><br>
 
 <h3>Acknowledgments</h3>
