@@ -27,14 +27,15 @@
 <h2>An exact parser from natural language math into logical forms</h2>
 <br><br>
 May 7, 2024
-<em>(last updated May 9, 2024)</em>
+<em>(last updated May 29, 2024)</em>
 <br><br>
 
 The task considered in this note is the following.
 Given a natural language math sentence, e.g.:
 <br><br>
 
-&ldquo;Let $ABC$ be an acute triangle with circumcenter $O$.&rdquo;
+&ldquo;Let $ABC$ be an acute triangle with circumcenter $O$. [&hellip;]
+Prove that line $AO$ meets $BC$ at $X$.&rdquo;
 <br><br>
 
 parse it into <a href="/notes/loglang.html">logical forms</a>,
@@ -42,9 +43,12 @@ e.g.:
 <br><br>
 
 <pre>
-let $ABC$ <- triangle()
-where acute($ABC$)
-let $O$ <- circumcenter($ABC$)
+$ABC$ <- "triangle"().
+"acute"($ABC$).
+$O$ <- "circumcenter"($ABC$).
+-- [...]
+$AO$ <- "line"().
+prove ( "meet"($AO$, $BC$) -> $X$ ).
 </pre>
 <br>
 
@@ -53,6 +57,10 @@ math can then be fed as input into, e.g.,
 <a href="/notes/exp.html">a forward-chaining prover</a>
 such as
 <a href="https://github.com/peterhj/meringue">Meringue</a>.
+(The task of parsing natural language into logical forms has
+also been called <em>semantic</em> parsing
+[<a href="#L16">L16</a>], but we simply call it parsing,
+hopefully without loss of clarity.)
 <br><br>
 
 Note that, depending on the complexity or size of the
@@ -85,23 +93,14 @@ precision (fewer false positives) at the cost of recall
 (i.e. a narrower domain).
 <br><br>
 
-A second consideration relates to the computational cost
+A second consideration relates to the inference throughput
 of LLMs.
-Single-GPU inference of smaller LLMs runs at around
-100 token/s (to the nearest order of magnitude) for a
-single stream of tokens;
-batched inference can bring the number to thousands of
-token/s.
-This suggests a time-to-next-token latency on the order
-of 10 ms or greater.
-<br><br>
-
-As food for thought: what if the equivalent
-time-to-next-token latency were to be reduced by several
-orders of magnitude (e.g. 1 &mu;s to 100&mu;s)?
-<br><br>
-
-<h3>Test-driven development of a cooperative backtracking parser</h3>
+Single-GPU inference throughput of LLMs is typically around
+100-1000 token/s (to the nearest order of magnitude)
+for a single stream of tokens;
+batched inference can bring the number to around
+1000-10000 token/s
+[<a href="#N24" style="cite">N24</a>].
 <br><br>
 
 With the above considerations in mind, a prototype exact
@@ -117,13 +116,7 @@ algorithm does not really elucidate how it works.
 However, some high level remarks may be informative.
 <br><br>
 
-The strategy by which the parser was written was
-essentially a form of <em>test-driven development</em>,
-in which test coverage was measured on a dataset of
-transcribed IMO shortlist geometry problems.
-Thus, the parser was incrementally implemented by making
-small modifications and refactorings to parse new test
-cases in the dataset.
+<h3>Cooperative backtracking parser architecture</h3>
 <br><br>
 
 The parsing algorithm itself is best thought of as a
@@ -203,12 +196,175 @@ case handling code,
 but could also be an outright erroneous case.
 <br><br>
 
-In practice, the parser is quite fast on its domain of
-validity, parsing whole sentences at a latency on the
-order of a hundred microseconds.
-Its recall is at 21% of sentences in the IMO geometry
-dataset after several weeks worth of implementation,
-while its precision is perfect by construction.
+<h3>Parser improvement as imitation learning</h3>
+<br><br>
+
+The strategy by which the parser was written was
+essentially a form of <em>test-driven development</em>,
+in which test coverage was measured on a dataset of
+transcribed IMO shortlist geometry problems.
+Thus, the parser was incrementally implemented by making
+small modifications and refactorings to parse new test
+cases in the dataset.
+However, we can formulate the process of
+<em>parser improvement</em> much more rigorously.
+<br><br>
+
+Let us consider the process of parser improvement as a
+<em>learning</em> process.
+We are given a training dataset consisting of pairs
+<code>(String, () -> Tree)</code>.
+The first element of a training pair is a natural language
+math sentence, e.g. from a corpus of olympiad math problems.
+The second element is a <em>lazy label</em> and is a closure
+returning the logical form abstract syntax tree (AST)
+corresponding to the first natural language math sentence.
+In other words, the learning process is an instance of
+<em>lazy supervised learning</em>;
+while training examples need labels, they do not need to be
+pre-labeled up front.
+<br><br>
+
+Formally, a <em>parser</em> is a function:
+<br><br>
+<pre>
+Parse : String -> Success(Tree)|Failure(ParseState)
+</pre>
+<br>
+where <code>Success(_)|Failure(_)</code> is the notation
+for a direct sum type (a.k.a. ADT or enum).
+<br><br>
+
+Now, suppose that the current parser produces a failed
+parse, i.e. <code>Failure(ParseState)</code>.
+We can inspect the <code>ParseState</code> to learn more
+about the parse failure and how to possibly modify the
+parser to avoid failure.
+Because our parsing architecture is based on a shared
+backtracking stack,
+it is possible to inspect the backtracking history and to
+find the <em>longest prefix</em> of the input string that
+yielded an incremental parse before encountering parse
+failure.
+More generally, the tree-structured backtracking history
+of the <code>ParseState</code> allows one to observe the
+sequence of actual parsing choice points, and to guess at
+which counterfactual parsing choices could have led to
+parsing success.
+<br><br>
+
+The availability of the longest prefix also allows one to
+define an <em>ordering</em> on the training dataset.
+For each training sample that does not yet successfully
+parse, calculate the longest prefix among its incremental
+parses, and take the ratio of the longest prefix length to
+the input string length.
+Sorting the training samples by decreasing ratio, one
+attains a <em>lowest-hanging-fruit ordering</em>,
+where the training samples at the front are closest to
+being successfully parsed.
+Thus, efforts to improve the parser should focus on those
+training samples first.
+<br><br>
+
+The reasoning above leads us to the following meta-algorithm
+for parser improvement:
+<br><br>
+
+<pre>
+initialize regression set = empty set
+while training is not done:
+    choose a training pair (x, y) by the lowest-hanging-fruit ordering
+    evaluate the label t of x
+    -- i.e., t is the target logical form tree
+    if y is a successful parse:
+        if y is compatible with t:
+            add (x, y) to the regression set
+            continue
+    while True:
+        modify the parser in a small but promising direction
+        run the modified parser on x to get a new parse y'
+        if y' is a failed parse:
+            continue
+        if y' is not compatible with t:
+            continue
+        run the parser on the regression set
+        if there are any parsing regressions:
+            continue
+        break
+    add (x, y') to the regression set
+</pre>
+<br>
+
+Let us briefly analyze the parse improvement meta-algorithm.
+<br><br>
+
+1. Parser improvement is formally related to imitation
+learning algorithms,
+e.g. DAgger [<a href="#RG11" style="cite">RG11</a>].
+<br><br>
+
+2. As parser improvement involves running the parser on the
+entire regression set, then its feasibility requires a fast
+parser.
+<br><br>
+
+3. While the initial implementation of parser improvement is
+based on a human expert evaluating target logical form tree
+labels and modifying the parser,
+in theory those two tasks could be partially augmented
+(or even entirely substituted) by an AI system
+(e.g. a system based on LLMs),
+enabling the possible scaling up of parser improvement.
+<br><br>
+
+<h3>Results on an IMO dataset</h3>
+<br><br>
+
+The actual training dataset consists of 135 IMO shortlist
+geometry problems from 2006 to 2022,
+from which we extracted 578 English (LaTeX) sentences of
+natural language mathematics.
+Target logical forms corresponding to those sentences were
+supplied, lazily, by the author.
+In practice, fresh parses from the parser itself were also
+accepted in lieu of the author explicitly deriving a target
+logical from tree from scratch;
+this could be considered <em>doubly lazy</em> supervision.
+<br><br>
+
+In its current state, the
+<a href="https://github.com/peterhj/praline">Praline</a>,
+parser produces
+121 gold parses out of 578 total samples,
+for a training recall of 21%.
+The training precision is, roughly, 100%,
+with the caveat that the human expert may not have perfectly
+labeled every training sample.
+<br><br>
+
+Typical &ldquo;inference throughput&rdquo; of the parser
+is about 0.1-1 ms/sentence,
+or equivalently around 0.01-0.1 ms/token,
+to the nearest order of magnitude.
+<br><br>
+
+What about the performance impact of backtracking?
+Among the 121 gold parses, the median backtrack count is 45,
+the mean 56, the minimum 20, and the maximum 165.
+These numbers suggest that even simple depth-first
+backtracking is not too expensive on natural language
+sentences.
+<br><br>
+
+The bulk of the development of the parser occurred over an
+approximately 8-week period.
+The first half was spent iterating on the parser
+architecture and practicing the parser improvement process
+on each iteration.
+During the second half, the parsing architecture was frozen
+on the cooperating backtracking architecture described
+earlier, and parser improvement proceeded in earnest.
 <br><br>
 
 <h3>Acknowledgments</h3>
@@ -220,10 +376,31 @@ We thank David Shin for helpful discussions and feedback.
 <h3>References</h3>
 <br><br>
 
+<span id="L16">[L16]
+Percy Liang.
+&ldquo;Learning Executable Semantic Parsers for Natural Language Understanding.&rdquo;
+<em>Communications of the ACM</em> 59(9), pp. 68-76 (2016).
+</span>
+<br><br>
+
+<span id="N24">[N24]
+Nvidia.
+&ldquo;H200 achieves nearly 12,000 tokens/sec on Llama2-13B with TensorRT-LLM.&rdquo;
+URL: <a href="https://nvidia.github.io/TensorRT-LLM/blogs/H200launch.html">https://nvidia.github.io/TensorRT-LLM/blogs/H200launch.html</a> (2024).
+</span>
+<br><br>
+
 <span id="P73">[P73]
 Vaughan R. Pratt.
 &ldquo;Top down operator precedence.&rdquo;
 In <em>Proceedings of the 1st Annual ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages</em> (1973).
+</span>
+<br><br>
+
+<span id="R11">[R11]
+St&eacute;phane Ross, Geoffrey J. Gordon, and J. Andrew Bagnell.
+&ldquo;A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning.&rdquo;
+In <em>Proceedings of the 14th International Conference on Artificial Intelligence and Statistics (AISTATS 2011)</em>.
 </span>
 
 </div>
