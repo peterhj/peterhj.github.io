@@ -96,10 +96,11 @@ precision (fewer false positives) at the cost of recall
 A second consideration relates to the inference throughput
 of LLMs.
 Single-GPU inference throughput of LLMs is typically around
-100-1000 token/s (to the nearest order of magnitude)
+100-1000 token/s, or 1-10 ms/token
+(to the nearest order of magnitude)
 for a single stream of tokens;
 batched inference can bring the number to around
-1000-10000 token/s
+1000-10000 token/s, or 0.1-1 ms/token
 [<a href="#N24" style="cite">N24</a>].
 <br><br>
 
